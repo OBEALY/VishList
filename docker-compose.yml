@@ -11,7 +11,7 @@ services:
       - "5433:5432"
     volumes:
       - type: bind
-        source: E:/vislist-data/postgres
+        source: ${VISLIST_DATA_DIR:-./vislist-data}/postgres
         target: /var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vislist -d vislist"]
@@ -37,6 +37,6 @@ services:
       - "8081:8080"
     volumes:
       - type: bind
-        source: E:/vislist-data/uploads
+        source: ${VISLIST_DATA_DIR:-./vislist-data}/uploads
         target: /app/uploads
     restart: unless-stopped
