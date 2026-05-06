@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: vislist-postgres
+    environment:
+      POSTGRES_DB: vislist
+      POSTGRES_USER: vislist
+      POSTGRES_PASSWORD: vislist
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - type: bind
+        source: E:/vislist-data/postgres
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vislist -d vislist"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vislist-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://vislist:vislist@db:5432/vislist?sslmode=disable
+      ADMIN_USERNAME: birthday_admin
+      ADMIN_PASSWORD: "Wish-2026-Admin"
+      UPLOAD_DIR: /app/uploads
+      PORT: "8080"
+    ports:
+      - "8081:8080"
+    volumes:
+      - type: bind
+        source: E:/vislist-data/uploads
+        target: /app/uploads
+    restart: unless-stopped
